@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using backend.Helpers;
 using Elsa;
 using Elsa.Persistence.EntityFramework.Core.Extensions;
 using Elsa.Persistence.EntityFramework.Sqlite;
@@ -29,6 +30,13 @@ namespace backend
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // DbContext service
+            services.AddLocalDbContext(Configuration);
+
+            // Automapper service
+            services.AddAutoMapper(typeof(Startup));
+
+            // Elsa Configuration
             var elsaSection = Configuration.GetSection("Elsa");
 
             // Elsa services.
