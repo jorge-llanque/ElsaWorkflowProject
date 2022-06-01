@@ -12,6 +12,7 @@ namespace backend.Helpers
     {
         public AutomapperProfiles()
         {
+            CreateMap<Book, BookCreacionDto>().ReverseMap();
             CreateMap<Book, BookDto>().ReverseMap();
         }
     }

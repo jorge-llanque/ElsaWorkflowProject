@@ -2,6 +2,7 @@ import React from 'react'
 import {Link} from 'react-router-dom'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { BellIcon, MenuIcon, XIcon, PencilIcon } from '@heroicons/react/outline'
+import useUser from '../hooks/useUser'
 
 
 const user = {
@@ -12,7 +13,7 @@ const user = {
   }
 const navigation = [
     { name: 'Dashboard', href: '/', current: true },
-    { name: 'Catalog', href: '/catalog', current: false },
+    { name: 'Inventory', href: '/inventory', current: false },
     { name: 'My Requests', href: '#', current: false },
     { name: 'My Books', href: '#', current: false },
   ]
@@ -28,6 +29,10 @@ function classNames(...classes) {
   }
 
 export default function Header() {
+  const { isLogged, logout, jwt } = useUser()
+
+
+
     return (
         <>
           {/*
@@ -55,9 +60,9 @@ export default function Header() {
                         <div className="hidden md:block">
                           <div className="ml-10 flex items-baseline space-x-4">
                             {navigation.map((item) => (
-                              <a
+                              <Link
                                 key={item.name}
-                                href={item.href}
+                                to={item.href}
                                 className={classNames(
                                   item.current
                                     ? 'bg-gray-900 text-white'
@@ -67,7 +72,7 @@ export default function Header() {
                                 aria-current={item.current ? 'page' : undefined}
                               >
                                 {item.name}
-                              </a>
+                              </Link>
                             ))}
                           </div>
                         </div>
@@ -76,50 +81,25 @@ export default function Header() {
                         <div className="ml-4 flex items-center md:ml-6">
                           
                           <span className="hidden sm:block">
-                            <Link
-                                to="/login"
-                                type="button"
-                                className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                            >
-                                Login
-                            </Link>
+                            {
+                              window.sessionStorage.getItem("jwt") === "undefined" ?
+                                <Link
+                                    to="/login"
+                                    type="button"
+                                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                >
+                                    Log Out
+                                </Link>
+                                :
+                                <Link
+                                    to="/login"
+                                    type="button"
+                                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                >
+                                    Login
+                                </Link>
+                            }
                         </span>
-                          {/* Profile dropdown */}
-                          {/* <Menu as="div" className="ml-3 relative">
-                            <div>
-                              <Menu.Button className="max-w-xs bg-gray-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
-                                <span className="sr-only">Open user menu</span>
-                                <img className="h-8 w-8 rounded-full" src={user.imageUrl} alt="" />
-                              </Menu.Button>
-                            </div>
-                            <Transition
-                              
-                              enter="transition ease-out duration-100"
-                              enterFrom="transform opacity-0 scale-95"
-                              enterTo="transform opacity-100 scale-100"
-                              leave="transition ease-in duration-75"
-                              leaveFrom="transform opacity-100 scale-100"
-                              leaveTo="transform opacity-0 scale-95"
-                            >
-                              <Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                {userNavigation.map((item) => (
-                                  <Menu.Item key={item.name}>
-                                    {({ active }) => (
-                                      <a
-                                        href={item.href}
-                                        className={classNames(
-                                          active ? 'bg-gray-100' : '',
-                                          'block px-4 py-2 text-sm text-gray-700'
-                                        )}
-                                      >
-                                        {item.name}
-                                      </a>
-                                    )}
-                                  </Menu.Item>
-                                ))}
-                              </Menu.Items>
-                            </Transition>
-                          </Menu> */}
                         </div>
                       </div>
                       <div className="-mr-2 flex md:hidden">

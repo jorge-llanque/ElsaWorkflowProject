@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using backend.DTOs;
 using backend.Entities;
+using backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -21,24 +23,43 @@ namespace backend.Controllers
         private readonly ApplicationDbContext context;
         private readonly IMapper mapper;
         private readonly UserManager<IdentityUser> userManager;
+        private readonly IAlmacenadorArchivos almacenadorArchivos;
+        private readonly string contenedor = "books";
 
-        public BooksController(ApplicationDbContext context, IMapper mapper, UserManager<IdentityUser> userManager)
+        public BooksController(
+            ApplicationDbContext context, 
+            IMapper mapper, 
+            UserManager<IdentityUser> userManager,
+            IAlmacenadorArchivos almacenadorArchivos)
         {
             this.context = context;
             this.mapper = mapper;
             this.userManager = userManager;
+            this.almacenadorArchivos = almacenadorArchivos;
         }
 
         [HttpPost]
-        public async Task<ActionResult<BookDto>> Post([FromBody] BookDto bookDto)
+        public async Task<ActionResult<BookDto>> Post([FromForm] BookCreacionDto bookCreacionDto)
         {
             var emailClaim = HttpContext.User.Claims.Where(claim => claim.Type == "email").FirstOrDefault();
             var email = emailClaim.Value;
             var usuario = await userManager.FindByEmailAsync(email);
             var usuarioId = usuario.Id;
 
-            var entity = mapper.Map<Book>(bookDto);
+            var entity = mapper.Map<Book>(bookCreacionDto);
             entity.UserId = usuarioId;
+
+            if (bookCreacionDto.Image != null)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await bookCreacionDto.Image.CopyToAsync(memoryStream);
+                    var contenido = memoryStream.ToArray();
+                    var extension = Path.GetExtension(bookCreacionDto.Image.FileName);
+                    entity.Image = await almacenadorArchivos.GuardarArchivo(contenido, extension, contenedor, bookCreacionDto.Image.ContentType);
+                }
+            }
+
             context.Add(entity);
             await context.SaveChangesAsync();
             return mapper.Map<BookDto>(entity);

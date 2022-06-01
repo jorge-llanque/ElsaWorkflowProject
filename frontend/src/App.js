@@ -9,17 +9,23 @@ import Login from "./pages/Login";
 import Register from './pages/Register';
 import Inventory from './pages/Inventory'
 import Header from './components/Header'
+import {BooksContextProvider} from './context/BooksContext'
+import {UserContextProvider} from './context/UserContext'
 
 function App() {
   return (
     <BrowserRouter>
     <Header/>
-    <Routes>
-      <Route path="/" element={<Home />}/>
-      <Route path="/login" element={<Login/>}/>
-      <Route path="/register" element={<Register/>}/>
-      <Route path="/inventory" element={<Inventory/>}/>
-    </Routes>
+    <UserContextProvider>
+      <BooksContextProvider>
+        <Routes>
+          <Route path="/" element={<Home />}/>
+          <Route path="/login" element={<Login/>}/>
+          <Route path="/register" element={<Register/>}/>
+          <Route path="/inventory" element={<Inventory/>}/>
+        </Routes>
+      </BooksContextProvider>
+    </UserContextProvider>
   </BrowserRouter>
   );
 }

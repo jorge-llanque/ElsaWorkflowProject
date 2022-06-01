@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using backend.Helpers;
+using backend.Services;
 using Elsa;
 using Elsa.Persistence.EntityFramework.Core.Extensions;
 using Elsa.Persistence.EntityFramework.Sqlite;
@@ -41,6 +42,10 @@ namespace backend
 
             // Automapper service
             services.AddAutoMapper(typeof(Startup));
+
+            // AlmacenadorArchivos
+            services.AddTransient<IAlmacenadorArchivos, AlmacenadorArchivosLocal>();
+            services.AddHttpContextAccessor();
 
             // Elsa Configuration
             var elsaSection = Configuration.GetSection("Elsa");
@@ -81,6 +86,16 @@ namespace backend
             services.AddIdentity<IdentityUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
+            services.AddCors(option =>
+            {
+                option.AddPolicy("AllCors", builder =>
+                {
+                    builder.AllowAnyOrigin();
+                    builder.AllowAnyHeader();
+                    builder.AllowAnyMethod();
+                });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -92,6 +107,7 @@ namespace backend
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "backend v1"));
             }
+            app.UseCors("AllCors");
             app.UseStaticFiles();
             app.UseHttpActivities();
             app.UseHttpsRedirection();
